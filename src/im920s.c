@@ -79,7 +79,7 @@ char *im920s_inner_gets(im920s_t *im, char *buffer, size_t size) {
 			//一文字読み捨てる。
 			do {
 				next = im->getc();
-			} while (next != '\0');
+			} while (next == '\0');
 			im->line[im->line_in] = '\0';
 			break;
 		} else {
