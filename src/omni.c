@@ -17,8 +17,8 @@ int32_t omni_wheel_solve(const omni_wheel_t *wheel, int32_t vx_mm,
 	assert(wheel);
 
 	q47_16_t sum = 0;
-	sum += (q47_16_t)vx_mm * wheel->s;
-	sum += (q47_16_t)vy_mm * wheel->c;
+	sum += (q47_16_t)vx_mm * wheel->c;
+	sum += (q47_16_t)vy_mm * wheel->s;
 	sum += (q47_16_t)omega * wheel->length_mm;
 	return (int32_t)int64_clamp(sum >> 16, INT32_MIN, INT32_MAX);
 }
