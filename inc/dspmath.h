@@ -10,7 +10,7 @@
  * @param b
  * @return int32_t
  */
-int32_t int32_sat_add(int32_t a, int32_t b) {
+static inline int32_t int32_sat_add(int32_t a, int32_t b) {
 	const int32_t c = a + b;
 
 	//符号を確認してオーバーフロー、アンダーフローを検出する。
@@ -31,7 +31,7 @@ int32_t int32_sat_add(int32_t a, int32_t b) {
  * @param b
  * @return int32_t
  */
-uint32_t uint32_sat_add(uint32_t a, uint32_t b) {
+static inline uint32_t uint32_sat_add(uint32_t a, uint32_t b) {
 	const uint32_t c = a + b;
 
 	//加算してもし、減少していたらおかしい
@@ -49,7 +49,7 @@ uint32_t uint32_sat_add(uint32_t a, uint32_t b) {
  * @param high 上限
  * @return int64_t
  */
-int64_t int64_clamp(int64_t x, int64_t low, int64_t high) {
+static inline int64_t int64_clamp(int64_t x, int64_t low, int64_t high) {
 	assert(low < high);
 	if (x > high) {
 		return high;

@@ -1,6 +1,7 @@
 add_library(src
   SHARED
 		pidc.c
+    omni.c
 )
 
 target_include_directories(src
