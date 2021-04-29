@@ -2,6 +2,7 @@
 #ifndef __HEADER_GUARD_IM929S__
 #define __HEADER_GUARD_IM929S__
 
+#include <stdbool.h>
 #include <stddef.h>
 /**
  * @brief
@@ -56,8 +57,6 @@ typedef enum im920s_command {
 	IM920S_SRST
 } im920s_command_t;
 
-const char *im920s_command_to_str(im920s_command_t);
-
 typedef void (*putc_t)(char);
 typedef char (*getc_t)();
 
@@ -66,30 +65,38 @@ typedef struct im920s {
 	getc_t getc;
 } im920s_t;
 
-void im920s_init(im920s_t *, putc_t, getc_t);
+bool im920s_init(im920s_t *, putc_t, getc_t);
+
 /**
- * @brief
- * 文字を出力する。
+ * @brief 文字を出力する。
  * @param im 初期化されたim920s
  * @param c 出力する文字
  */
 static inline void im920s_inner_putc(const im920s_t *im, char c) {
 	im->putc(c);
 }
+
 /**
  * @brief 文字を入力する
- *
  * @param im 初期化されたim920s
  * @return char　入力された文字、存在しない場合は0
  */
 static inline char im920s_inner_getc(const im920s_t *im) { return im->getc(); }
+
 /**
- * @brief
- * 文字列を出力する
+ * @brief 文字列を出力する
  * @param im 初期化されたim920s
  * @param str 出力する文字列
  */
 void im920s_inner_puts(const im920s_t *im, const char *str);
+/**
+ * @brief 改行する
+ * @param im 初期化されたim920s
+ */
+void im920s_inner_put_command(const im920s_t *im, im920s_command_t command);
+void im920s_inner_printf(const im920s_t *im, const char *fmt, ...);
+void im920s_inner_put_newline(const im920s_t *im);
+
 /**
  * @brief
  *　改行文字(\r)もしくはbufferの大きさまで文字列を入力する。
@@ -99,5 +106,34 @@ void im920s_inner_puts(const im920s_t *im, const char *str);
  * @return char*
  */
 char *im920s_inner_gets(const im920s_t *im, char *buffer, size_t size);
+
+/**
+ * @brief 入力バッファをクリアする
+ *
+ * @param im 初期化されたim920s
+ * @return char*
+ */
+void im920s_inner_clean(const im920s_t *im);
+/**
+ * @brief 文字列を受け取り、その文字列がOK,NGかを判別する。
+ * @param im　初期化されたim920s
+ * @return true　OK
+ * @return false NG
+ */
+bool im920s_verify_response(const im920s_t *im);
+/**
+ * @brief ソフトウェアリセットを行う
+ *
+ * @param im 初期化されたim920s
+ * @return true 成功
+ * @return false 失敗
+ */
+bool im920s_sw_reset(const im920s_t *im);
+
+bool im920s_write_node(const im920s_t *im, int node);
+bool im920s_read_node(const im920s_t *im, int *node);
+
+bool im920s_write_group(const im920s_t *im, int group);
+bool im920s_read_group(const im920s_t *im, int *group);
 
 #endif
