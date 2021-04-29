@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 /**
  * @brief
  * im920sに登録されているコマンドの一覧
@@ -59,10 +60,12 @@ typedef enum im920s_command {
 
 typedef void (*putc_t)(char);
 typedef char (*getc_t)();
-
+#define IM920S_BUFFER_SIZE (120)
 typedef struct im920s {
 	putc_t putc;
 	getc_t getc;
+	char line[IM920S_BUFFER_SIZE]; //一行分の受信用バッファ
+	size_t line_in, line_out;
 } im920s_t;
 
 bool im920s_init(im920s_t *, putc_t, getc_t);
@@ -76,13 +79,7 @@ static inline void im920s_inner_putc(const im920s_t *im, char c) {
 	im->putc(c);
 }
 
-/**
- * @brief 文字を入力する
- * @param im 初期化されたim920s
- * @return char　入力された文字、存在しない場合は0
- */
-static inline char im920s_inner_getc(const im920s_t *im) { return im->getc(); }
-
+char im920_inter_getc(im920s_t *im);
 /**
  * @brief 文字列を出力する
  * @param im 初期化されたim920s
@@ -105,7 +102,23 @@ void im920s_inner_put_newline(const im920s_t *im);
  * @param size bufferの大きさ
  * @return char*
  */
-char *im920s_inner_gets(const im920s_t *im, char *buffer, size_t size);
+char *im920s_inner_gets(im920s_t *im, char *buffer, size_t size);
+/**
+ * @brief
+ *　改行文字(\r)もしくはbufferの大きさまで文字列を入力する。(ブロック付き)
+ * @param im 初期化されたim920s
+ * @param buffer 入力された文字列を格納するバッファ
+ * @param size bufferの大きさ
+ * @return char*
+ */
+static inline char *im920s_inner_gets_blocked(im920s_t *im, char *buffer,
+											  size_t size) {
+	char *line = NULL;
+	while (line == NULL) {
+		line = im920s_inner_gets(im, buffer, size);
+	}
+	return line;
+}
 
 /**
  * @brief 入力バッファをクリアする
@@ -113,14 +126,14 @@ char *im920s_inner_gets(const im920s_t *im, char *buffer, size_t size);
  * @param im 初期化されたim920s
  * @return char*
  */
-void im920s_inner_clean(const im920s_t *im);
+void im920s_inner_clean(im920s_t *im);
 /**
  * @brief 文字列を受け取り、その文字列がOK,NGかを判別する。
  * @param im　初期化されたim920s
  * @return true　OK
  * @return false NG
  */
-bool im920s_verify_response(const im920s_t *im);
+bool im920s_verify_response(im920s_t *im);
 /**
  * @brief ソフトウェアリセットを行う
  *
@@ -128,12 +141,18 @@ bool im920s_verify_response(const im920s_t *im);
  * @return true 成功
  * @return false 失敗
  */
-bool im920s_sw_reset(const im920s_t *im);
+bool im920s_sw_reset(im920s_t *im);
 
-bool im920s_write_node(const im920s_t *im, int node);
-bool im920s_read_node(const im920s_t *im, int *node);
+bool im920s_write_node(im920s_t *im, int node);
+bool im920s_read_node(im920s_t *im, int *node);
 
-bool im920s_write_group(const im920s_t *im, int group);
-bool im920s_read_group(const im920s_t *im, int *group);
+typedef struct im920s_packet {
+	uint16_t node; // who send this packet?
+	uint8_t rssi;
+	size_t size;
+	uint8_t bytes[32];
+} im920s_packet_t;
+
+im920s_packet_t *im920s_receive(im920s_t *im, im920s_packet_t *packet);
 
 #endif
