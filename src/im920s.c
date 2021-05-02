@@ -152,7 +152,8 @@ bool im920s_read_node(im920s_t *im, int *node) {
 	return true;
 }
 
-im920s_packet_t *im920s_receive(im920s_t *im, im920s_packet_t *packet) {
+im920s_receive_packet_t *
+im920s_receive_packet(im920s_t *im, im920s_receive_packet_t *packet) {
 	assert(im && packet);
 	char line[IM920S_BUFFER_SIZE];
 	//データ到着確認

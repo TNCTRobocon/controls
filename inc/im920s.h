@@ -146,13 +146,17 @@ bool im920s_sw_reset(im920s_t *im);
 bool im920s_write_node(im920s_t *im, int node);
 bool im920s_read_node(im920s_t *im, int *node);
 
-typedef struct im920s_packet {
+typedef struct im920s_receive_packet {
 	uint16_t node; // who send this packet?
 	uint8_t rssi;
 	size_t size;
 	uint8_t bytes[32];
-} im920s_packet_t;
+} im920s_receive_packet_t;
 
-im920s_packet_t *im920s_receive(im920s_t *im, im920s_packet_t *packet);
+im920s_receive_packet_t *im920s_receive_packet(im920s_t *im,
+											   im920s_receive_packet_t *packet);
+
+typedef struct im920s_transmit_packet {};
+
 
 #endif
